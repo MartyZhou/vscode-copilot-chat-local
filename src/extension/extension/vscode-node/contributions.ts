@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { AutomationEmailDaemonContribution } from '../../agents/vscode-node/automationEmailDaemonContribution';
 import { PromptFileContribution } from '../../agents/vscode-node/promptFileContrib';
 import { AuthenticationContrib } from '../../authentication/vscode-node/authentication.contribution';
 import { BYOKContrib } from '../../byok/vscode-node/byokContribution';
@@ -96,6 +97,7 @@ export const vscodeNodeContributions: IExtensionContributionFactory[] = [
 	asContributionFactory(CompletionsUnificationContribution),
 	workspaceIndexingContribution,
 	asContributionFactory(ChatSessionsContrib),
+	asContributionFactory(AutomationEmailDaemonContribution),
 	asContributionFactory(GitHubMcpContrib),
 	asContributionFactory(OTelContrib),
 ];

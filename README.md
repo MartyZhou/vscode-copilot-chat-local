@@ -27,6 +27,12 @@ To access GitHub Copilot, an active GitHub Copilot subscription is required. You
 
 **Use agents to [plan before you build](https://code.visualstudio.com/docs/copilot/agents/planning) with the Plan agent**, which breaks tasks into structured implementation plans and asks clarifying questions. When your plan is ready, hand it off to an implementation agent to execute it. You can also [delegate tasks to cloud agents](https://code.visualstudio.com/docs/copilot/agents/cloud-agents) that create branches, implement changes, and open pull requests for your team to review.
 
+## Local Customization: Automation Orchestrator
+
+This local repository includes a custom **Automation Orchestrator Agent** for API/E2E automation workflows across multi-repo workspaces, including a numbered command-signature workflow and sensitive-command approval protocol.
+
+See [docs/automation-orchestrator.md](docs/automation-orchestrator.md) for usage and verification details.
+
 ## More ways to code with AI
 
 **Receive intelligent inline suggestions** as you type with [ghost text suggestions](https://aka.ms/vscode-completions) and [next edit suggestions](https://aka.ms/vscode-nes), helping you write code faster. Copilot predicts your next logical change, and you can accept suggestions with the Tab key.

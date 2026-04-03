@@ -10,6 +10,7 @@ import { SyncDescriptor } from '../../../util/vs/platform/instantiation/common/d
 import { IInstantiationService } from '../../../util/vs/platform/instantiation/common/instantiation';
 import { IExtensionContribution } from '../../common/contributions';
 import { AskAgentProvider } from './askAgentProvider';
+import { AutomationOrchestratorAgentProvider } from './automationOrchestratorAgentProvider';
 import { EditModeAgentProvider } from './editModeAgentProvider';
 import { ExploreAgentProvider } from './exploreAgentProvider';
 import { GitHubOrgCustomAgentProvider } from './githubOrgCustomAgentProvider';
@@ -64,6 +65,10 @@ export class PromptFileContribution extends Disposable implements IExtensionCont
 			// Register Explore agent provider for code research subagent
 			const exploreProvider = instantiationService.createInstance(ExploreAgentProvider);
 			this._register(vscode.chat.registerCustomAgentProvider(exploreProvider));
+
+			// Register Automation Orchestrator provider for multi-repo API/E2E test automation workflows
+			const automationOrchestratorProvider = instantiationService.createInstance(AutomationOrchestratorAgentProvider);
+			this._register(vscode.chat.registerCustomAgentProvider(automationOrchestratorProvider));
 		}
 
 		// Register instructions provider
