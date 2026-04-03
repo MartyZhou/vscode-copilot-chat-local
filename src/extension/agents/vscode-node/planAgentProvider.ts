@@ -10,6 +10,7 @@ import { IVSCodeExtensionContext } from '../../../platform/extContext/common/ext
 import { IFileSystemService } from '../../../platform/filesystem/common/fileSystemService';
 import { ILogService } from '../../../platform/log/common/logService';
 import { Disposable } from '../../../util/vs/base/common/lifecycle';
+import { writeCachedAgentFile } from './agentProviderUtils';
 import { AgentConfig, AgentHandoff, buildAgentMarkdown, DEFAULT_READ_TOOLS } from './agentTypes';
 
 /**
@@ -80,27 +81,16 @@ export class PlanAgentProvider extends Disposable implements vscode.ChatCustomAg
 		const content = buildAgentMarkdown(config);
 
 		// Write to cache file and return URI
-		const fileUri = await this.writeCacheFile(content);
+		const fileUri = await writeCachedAgentFile({
+			cacheDir: PlanAgentProvider.CACHE_DIR,
+			fileName: PlanAgentProvider.AGENT_FILENAME,
+			content,
+			providerName: 'PlanAgentProvider',
+			extensionContext: this.extensionContext,
+			fileSystemService: this.fileSystemService,
+			logService: this.logService,
+		});
 		return [{ uri: fileUri }];
-	}
-
-	private async writeCacheFile(content: string): Promise<vscode.Uri> {
-		const cacheDir = vscode.Uri.joinPath(
-			this.extensionContext.globalStorageUri,
-			PlanAgentProvider.CACHE_DIR
-		);
-
-		// Ensure cache directory exists
-		try {
-			await this.fileSystemService.stat(cacheDir);
-		} catch {
-			await this.fileSystemService.createDirectory(cacheDir);
-		}
-
-		const fileUri = vscode.Uri.joinPath(cacheDir, PlanAgentProvider.AGENT_FILENAME);
-		await this.fileSystemService.writeFile(fileUri, new TextEncoder().encode(content));
-		this.logService.trace(`[PlanAgentProvider] Wrote agent file: ${fileUri.toString()}`);
-		return fileUri;
 	}
 
 	static buildAgentBody(): string {
