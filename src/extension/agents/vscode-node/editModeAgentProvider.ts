@@ -9,6 +9,7 @@ import { IVSCodeExtensionContext } from '../../../platform/extContext/common/ext
 import { IFileSystemService } from '../../../platform/filesystem/common/fileSystemService';
 import { ILogService } from '../../../platform/log/common/logService';
 import { Disposable } from '../../../util/vs/base/common/lifecycle';
+import { writeCachedAgentFile } from './agentProviderUtils';
 import { AgentConfig, buildAgentMarkdown } from './agentTypes';
 
 const BASE_EDIT_MODE_AGENT_CONFIG: AgentConfig = {
@@ -65,25 +66,15 @@ export class EditModeAgentProvider extends Disposable implements vscode.ChatCust
 		_token: vscode.CancellationToken
 	): Promise<vscode.ChatResource[]> {
 		const content = buildAgentMarkdown(BASE_EDIT_MODE_AGENT_CONFIG);
-		const fileUri = await this._writeCacheFile(content);
+		const fileUri = await writeCachedAgentFile({
+			cacheDir: EditModeAgentProvider.CACHE_DIR,
+			fileName: EditModeAgentProvider.AGENT_FILENAME,
+			content,
+			providerName: 'EditModeAgentProvider',
+			extensionContext: this._extensionContext,
+			fileSystemService: this._fileSystemService,
+			logService: this._logService,
+		});
 		return [{ uri: fileUri }];
-	}
-
-	private async _writeCacheFile(content: string): Promise<vscode.Uri> {
-		const cacheDir = vscode.Uri.joinPath(
-			this._extensionContext.globalStorageUri,
-			EditModeAgentProvider.CACHE_DIR
-		);
-
-		try {
-			await this._fileSystemService.stat(cacheDir);
-		} catch {
-			await this._fileSystemService.createDirectory(cacheDir);
-		}
-
-		const fileUri = vscode.Uri.joinPath(cacheDir, EditModeAgentProvider.AGENT_FILENAME);
-		await this._fileSystemService.writeFile(fileUri, new TextEncoder().encode(content));
-		this._logService.trace(`[EditModeAgentProvider] Wrote agent file: ${fileUri.toString()}`);
-		return fileUri;
 	}
 }

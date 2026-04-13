@@ -10,6 +10,7 @@ import { IVSCodeExtensionContext } from '../../../platform/extContext/common/ext
 import { IFileSystemService } from '../../../platform/filesystem/common/fileSystemService';
 import { ILogService } from '../../../platform/log/common/logService';
 import { Disposable } from '../../../util/vs/base/common/lifecycle';
+import { writeCachedAgentFile } from './agentProviderUtils';
 import { AgentConfig, buildAgentMarkdown, DEFAULT_READ_TOOLS } from './agentTypes';
 
 /**
@@ -78,26 +79,16 @@ export class ExploreAgentProvider extends Disposable implements vscode.ChatCusto
 	): Promise<vscode.ChatResource[]> {
 		const config = this._buildCustomizedConfig();
 		const content = buildAgentMarkdown(config);
-		const fileUri = await this._writeCacheFile(content);
+		const fileUri = await writeCachedAgentFile({
+			cacheDir: ExploreAgentProvider.CACHE_DIR,
+			fileName: ExploreAgentProvider.AGENT_FILENAME,
+			content,
+			providerName: 'ExploreAgentProvider',
+			extensionContext: this._extensionContext,
+			fileSystemService: this._fileSystemService,
+			logService: this._logService,
+		});
 		return [{ uri: fileUri }];
-	}
-
-	private async _writeCacheFile(content: string): Promise<vscode.Uri> {
-		const cacheDir = vscode.Uri.joinPath(
-			this._extensionContext.globalStorageUri,
-			ExploreAgentProvider.CACHE_DIR
-		);
-
-		try {
-			await this._fileSystemService.stat(cacheDir);
-		} catch {
-			await this._fileSystemService.createDirectory(cacheDir);
-		}
-
-		const fileUri = vscode.Uri.joinPath(cacheDir, ExploreAgentProvider.AGENT_FILENAME);
-		await this._fileSystemService.writeFile(fileUri, new TextEncoder().encode(content));
-		this._logService.trace(`[ExploreAgentProvider] Wrote agent file: ${fileUri.toString()}`);
-		return fileUri;
 	}
 
 	static buildAgentBody(): string {
